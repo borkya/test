@@ -32,67 +32,54 @@ public class MovieTriviaCRUD {
 	    
 	    
 
-	    public QuestionBean getFinalQuestionsForAlexa(List<Integer> listOfQuestionAsked) {   
-	    	log.info("getFinalQuestionsForAlexa start" +listOfQuestionAsked);
-//	        DynamoDBScanExpression scanExpression = getMovieTriviaFromDb();
-//	    	MovieTableMapper partitionKey  = new MovieTableMapper();
-//	        partitionKey.setId(1); 
-//	        DynamoDBQueryExpression<MovieTableMapper> queryExpression = new DynamoDBQueryExpression<MovieTableMapper>() 
-//	        	    .withHashKeyValues(partitionKey );
-//	        
-//	        List<MovieTableMapper> itemList = mapper.query(MovieTableMapper.class, queryExpression);
-//	        for (int i = 0; i < itemList.size(); i++) {
-//	            System.out.println("Clip from Db not needed" +itemList.get(i).getClip());
-//	            System.out.println("Question1 @@@@@@@@@@@@@@ Db not needed" + itemList.get(i).getQuestion1());
-//	            System.out.println("Answer1 ############# Db not needed" + itemList.get(i).getAnswer1());
-//	        }
-//			 List<MovieTableMapper> scanResult = mapper.scan(MovieTableMapper.class, scanExpression);
-	         List<MovieTableMapper> scanResult = mapper.scan(MovieTableMapper.class, new DynamoDBScanExpression());
-	         System.out.println("Size of scanResult 99999999.. :" + scanResult.size());
-	         for (MovieTableMapper movieTrivia : scanResult) {
-	        	   System.out.println("Clip from Db... :" +movieTrivia.getClip());
-	               System.out.println("Question1 @@@@@@@@@@@@@@" + movieTrivia.getQuestion1());
-	               System.out.println("Answer1 #############" + movieTrivia.getAnswer1());
-	        	   System.out.println(" @@@@@@@@@@ Record number @@@@ :" + movieTrivia.getId() );
-	        	
-	         }
-	        //TODO ###################
-	       //TODO commented temporary List<MovieTableMapper> scanResult = mapper.scan(MovieTableMapper.class, scanExpression);
-            log.info("scanResult@@@@@@@@@"+scanResult);
-            log.info("scanResult111111111"+scanResult.size());
-          
-           MovieTableMapper scanResultfiltered = new MovieTableMapper();
- 	       QuestionBean alexQuestion = new QuestionBean();
-	       	int randomNo = randInt( 1,MovieTriviaUtility.DB_RECORD_COUNT, listOfQuestionAsked);
-	       	if(randomNo == 0){
-	       		log.info("As random no is 0 reset the questionList");
-	       		alexQuestion.setQuestionemptyList(true);
-	       		alexQuestion.setQuestion(scanResult.get(0).getQuestion1());
-	       		alexQuestion.setAnswer(scanResult.get(0).getAnswer1());
-	       		alexQuestion.setCliphere(scanResult.get(0).getClip());
-	       		alexQuestion.setId(scanResult.get(0).getId());
-	       		return alexQuestion;
-	       	   }
+	    public QuestionBean getFinalQuestionsForAlexa(List<Integer> listOfQuestionAsked) {
+	    	
+		         List<MovieTableMapper> scanResult = mapper.scan(MovieTableMapper.class, new DynamoDBScanExpression());
+		         System.out.println("Size of scanResult 99999999.. :" + scanResult.size());
+		         for (MovieTableMapper movieTrivia : scanResult) {
+		        	   System.out.println("Clip from Db... :" +movieTrivia.getClip());
+		               System.out.println("Question1 @@@@@@@@@@@@@@" + movieTrivia.getQuestion1());
+		               System.out.println("Answer1 #############" + movieTrivia.getAnswer1());
+		        	   System.out.println(" @@@@@@@@@@ Record number @@@@ :" + movieTrivia.getId() );
+		        	
+		         }
+		        //TODO ###################
+		       //TODO commented temporary List<MovieTableMapper> scanResult = mapper.scan(MovieTableMapper.class, scanExpression);
+	            log.info("scanResult@@@@@@@@@"+scanResult);
+	            log.info("scanResult111111111"+scanResult.size());
+	          
+	           MovieTableMapper scanResultfiltered = new MovieTableMapper();
+	 	       QuestionBean alexQuestion = new QuestionBean();
+		       	int randomNo = randInt( 1,MovieTriviaUtility.DB_RECORD_COUNT, listOfQuestionAsked);
+		       	if(randomNo == 0){
+		       		log.info("As random no is 0 reset the questionList");
+		       		alexQuestion.setQuestionemptyList(true);//TODO
+		       		alexQuestion.setQuestion(scanResult.get(0).getQuestion1());
+		       		alexQuestion.setAnswer(scanResult.get(0).getAnswer1());
+		       		alexQuestion.setCliphere(scanResult.get(0).getClip());
+		       		alexQuestion.setId(scanResult.get(0).getId());
+		       		return alexQuestion;
+		       	   }
 
-	        for (MovieTableMapper movieTrivia : scanResult) {
-	        log.info("Id is " +movieTrivia.getId());
-	       	log.info("randomNo is " +randomNo);	       	   
-	       	   if (movieTrivia.getId().equals(randomNo)) {
-	       		log.info("Got the number from db list " +movieTrivia.getId());
-	       		   scanResultfiltered.setId(movieTrivia.getId());   
-	       		   scanResultfiltered.setAnswer1(movieTrivia.getAnswer1());
-	           	   scanResultfiltered.setAnswer2(movieTrivia.getAnswer2());
-	           	   scanResultfiltered.setClip(movieTrivia.getClip());
-	           	   scanResultfiltered.setQuestion1(movieTrivia.getQuestion1());
-	           	   scanResultfiltered.setQuestion2(movieTrivia.getQuestion2());
-	           	log.info("breaking from for loop");
-	           	break;
-	       	   }
-	       	
-	        }
-	        log.info("getFinalQuestionsForAlexa end" );
-		    return getQuestionForAlexaUser(scanResultfiltered, alexQuestion);
-	       
+		        for (MovieTableMapper movieTrivia : scanResult) {
+		        log.info("Id is " +movieTrivia.getId());
+		       	log.info("randomNo is " +randomNo);	       	   
+		       	   if (movieTrivia.getId().equals(randomNo)) {
+		       		log.info("Got the number from db list " +movieTrivia.getId());
+		       		   scanResultfiltered.setId(movieTrivia.getId());   
+		       		   scanResultfiltered.setAnswer1(movieTrivia.getAnswer1());
+		           	   scanResultfiltered.setAnswer2(movieTrivia.getAnswer2());
+		           	   scanResultfiltered.setClip(movieTrivia.getClip());
+		           	   scanResultfiltered.setQuestion1(movieTrivia.getQuestion1());
+		           	   scanResultfiltered.setQuestion2(movieTrivia.getQuestion2());
+		           	log.info("breaking from for loop");
+		           	break;
+		       	   }
+		       	
+		        }
+		        log.info("getFinalQuestionsForAlexa end" );
+			    return getQuestionForAlexaUser(scanResultfiltered, alexQuestion);
+	    	
 	    }
 
 
@@ -136,7 +123,7 @@ public class MovieTriviaCRUD {
         
         public static int randInt(int min, int max, List<Integer> sessionList) {
         	log.info("Min is "+min+ " and max is "+max);
-     		if(sessionList.size() <= MovieTriviaUtility.DB_RECORD_COUNT) {
+     		if(sessionList!= null && sessionList.size() <= MovieTriviaUtility.DB_RECORD_COUNT) {
      			Random rn = new Random();
      	 	    int randomNum = rn.nextInt((max - min) + 1) + min;
      	 	    System.out.print("Random No is "+randomNum);

@@ -43,7 +43,7 @@ public class MovieTriviaManager {
     	movieTriviaDao = new MovieTriviaDao(dynamoDbClient);
     }
 	 public SpeechletResponse handleYesIntent(SpeechletRequestEnvelope<IntentRequest> requestEnvelope,
-			List<Integer> listOfQuestionAlreadyAsked ,String sessionIdSessionStart) {
+			String sessionIdSessionStart) {
 			QuestionBean qb = new QuestionBean();
 	    	log.info("Inside handleYesIntent ... START" );
 	        SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
@@ -57,9 +57,12 @@ public class MovieTriviaManager {
 	        log.info("Session Id @@@@@@... :" + session.getSessionId() );
 //	        log.info(" Question Number @@@@@@... :" + questionNumber);
 	        String speechOutput = "";
-	        Object listOfQqAskedToAlexa = requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked");
+	        Object listOfQAskedToAlexa = requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked");
+	        log.info(" listOfQqAskedToAlexa frm session @@@@@@... :" + listOfQAskedToAlexa);
 	        //Convert to List<Integers>
-	        qb = dynamoDBOperations.getFinalQuestionsForAlexa(listOfQuestionAlreadyAsked);
+	        List<Integer> ojj = (ArrayList<Integer>)requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked");
+	        qb = dynamoDBOperations.getFinalQuestionsForAlexa(ojj);
+	        
 	        answer = qb.getAnswer();
 	        clip 		 = qb.getCliphere();
 			clipUsed 	 = MovieTriviaUtility.convertClip(clip);
@@ -67,20 +70,32 @@ public class MovieTriviaManager {
 	        log.info(" 333333333 Clip used ---:  :" 		+ clipUsed);
 	        log.info(" 444444444 Question from dynamoDB :" 	+ qb.getQuestion());
 	        log.info(" 555555555 Answer from dynamoDB :" 	+ qb.getAnswer());
-	 		
-	        if(sessionIdSessionStart.equalsIgnoreCase(session.getSessionId())){
-	        		listOfQuestionAlreadyAsked.add(qb.getId());
+	        List<Integer> ojj1 = new ArrayList<>();
+	        if (ojj != null){
+	        	 log.info(" ojj is :" 	+ ojj);
+	        	 log.info(" ojj1 is before:" 	+ ojj1);
+	        	ojj1 = ojj;
+	        	log.info(" ojj1 is after:" 	+ ojj1);
+	        }
+	        
+	       ojj1.add(qb.getId());
+	        
+	         
+	         log.info(" added listOfQuestionAlreadyAskedid to list and new list is " + ojj1);
+	        requestEnvelope.getSession().setAttribute("listOfQuestionAlreadyAsked", ojj1);
+	       // if(sessionIdSessionStart.equalsIgnoreCase(session.getSessionId())){
+	        		//listOfQuestionAlreadyAsked.add(qb.getId());
 //	        		questionNumber++;
-	        		log.info("Questions Asked so far QQQQQQQQ... :" + listOfQuestionAlreadyAsked);
-	        		log.info("Id of Question Asked   IIIIIIII... :" + qb.getId());
-	        	}
+	        	 //  requestEnvelope.getSession().setAttribute("listOfQuestionAlreadyAsked", listOfQuestionAlreadyAsked);
+	        		
+	        		//log.info("Id of Question Asked   IIIIIIII... :" + qb.getId());
+	        	//}
 //		   Sample format 
 //		   String speechOutput = "<audio src='https://s3.amazonaws.com/moviedialogs/Boman_Munnabhai.mp3'/>"; speechOutput = speechOutput+ "<break time= \"\2s\" />"; 
            
 	 		speechOutput = clipUsed;
 	 		speechOutput = speechOutput + qb.getQuestion() ;
 			outputSpeech.setSsml("<speak>" + speechOutput + "</speak>");
-			requestEnvelope.getSession().setAttribute("listOfQuestionAlreadyAsked", listOfQuestionAlreadyAsked);
 		
 			return SpeechletResponse.newAskResponse(outputSpeech,reprompt);   // newTellResponse(outputSpeech);
 	    }

@@ -38,7 +38,7 @@ public class MovieTriviaUtility {
     public String sessionId = "";
     public Integer questionNumber =1;
     public static List<Integer> listOfQuestionAsked = new ArrayList<>();
-    public static final int DB_RECORD_COUNT = 36;
+    public static final int DB_RECORD_COUNT = 55;
     
 
     public static String getdynamicContinue() {

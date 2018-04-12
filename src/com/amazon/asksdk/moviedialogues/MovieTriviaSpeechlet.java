@@ -31,7 +31,6 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     private MovieTriviaManager movieTriviaManager;
     public int questionNumber = 1;
     
-    public static List<Integer> listOfQuestionAlreadyAsked = new ArrayList<>();
 
     public MovieTriviaSpeechlet(DirectiveService directiveService) {
     }
@@ -63,7 +62,7 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
         log.info("Intent Name is ....:  " + intentName);
         if ("AMAZON.YesIntent".equals(intentName)){
         	
-        	return movieTriviaManager.handleYesIntent(requestEnvelope,listOfQuestionAlreadyAsked,sessionIdSessionStart);  
+        	return movieTriviaManager.handleYesIntent(requestEnvelope,sessionIdSessionStart);  
         	
         } else if ("AnswerIntent".equals(intentName)){
         	return movieTriviaManager.handleAnswerIntent(requestEnvelope);  
@@ -129,13 +128,12 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     	questionNumber =1;
     	log.info("Session to be saved ....: "  + requestEnvelope.getSession() );
     	if(requestEnvelope.getSession() != null){
-    		log.info("listOfQuestionAlreadyAsked$$$$$$$$$$$$$$$$$ ....: "  + listOfQuestionAlreadyAsked );
     		log.info("TEST LIST@@@@: "  + requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked") );
     		List<Integer>  qqObj = (ArrayList<Integer>)requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked");//TODO thid will not work.Need way to comvert Object attribute to 
     		log.info("qqObjT@@@@: "  + qqObj );	
     	movieTriviaManager.saveToUserData(qqObj, requestEnvelope.getSession());
     	}
-    	listOfQuestionAlreadyAsked.removeAll(listOfQuestionAlreadyAsked);
+    	
     }
     
     /**
