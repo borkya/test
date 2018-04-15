@@ -47,6 +47,8 @@ public class MovieTriviaDynamoDbClient {
     	log.info("saveItem END##########################");
         mapper.save(tableItem);
     }
+    
+    
 
     /**
      * Creates a {@link DynamoDBMapper} using the default configurations.

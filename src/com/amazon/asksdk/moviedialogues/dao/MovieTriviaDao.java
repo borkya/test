@@ -28,6 +28,7 @@ public class MovieTriviaDao {
      * @return
      */
     public MovieTriviaUserData getMovieUserData(Session session) {
+    	log.info("getMovieUserData START##########################");
     	MovieTriviaGameDataItem item = new MovieTriviaGameDataItem();
         item.setUserid(session.getUser().getUserId());
 
@@ -36,7 +37,7 @@ public class MovieTriviaDao {
         if (item == null) {
             return null;
         }
-       
+        log.info("getMovieUserData END return##########################");
         return item.getUserData(); 
     }
 
@@ -56,6 +57,8 @@ public class MovieTriviaDao {
         dynamoDbClient.saveItem(item);
         
     }
+    
+    
     
    
 }

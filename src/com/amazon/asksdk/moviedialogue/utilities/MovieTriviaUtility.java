@@ -38,7 +38,11 @@ public class MovieTriviaUtility {
     public String sessionId = "";
     public Integer questionNumber =1;
     public static List<Integer> listOfQuestionAsked = new ArrayList<>();
-    public static final int DB_RECORD_COUNT = 55;
+    public static final int DB_RECORD_HIGH = 57;
+    public static final int DB_RECORD_LOW =5;
+    public static final int DB_RECORD_SIZE =52;
+
+    public static final int QB_COUNTER =5 ;
     
 
     public static String getdynamicContinue() {
@@ -56,6 +60,8 @@ public class MovieTriviaUtility {
  	}
     public static String convertClip(String clip){
     	String convertedClip= "<audio src='";
+ 		log.info("convertedClip is"+convertedClip + clip + "'/>");
+
     	return convertedClip = convertedClip + clip + "'/>";
     }
     // Sample Clip format "<audio src='https://s3.amazonaws.com/moviedialogs/AB%40.mp3'/>";

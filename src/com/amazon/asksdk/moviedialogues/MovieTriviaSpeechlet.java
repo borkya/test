@@ -31,6 +31,8 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     private MovieTriviaManager movieTriviaManager;
     public int questionNumber = 1;
     
+    public static int counter = 0;
+    
 
     public MovieTriviaSpeechlet(DirectiveService directiveService) {
     }
@@ -61,7 +63,6 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     	String intentName = requestEnvelope.getRequest().getIntent().getName();
         log.info("Intent Name is ....:  " + intentName);
         if ("AMAZON.YesIntent".equals(intentName)){
-        	
         	return movieTriviaManager.handleYesIntent(requestEnvelope,sessionIdSessionStart);  
         	
         } else if ("AnswerIntent".equals(intentName)){
@@ -73,7 +74,10 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
         	 log.info("Session Id after @@@@@@... :" + sessionIdSessionStart );
              log.info(" Question Number after@@@@@@... :" + questionNumber);
         	 PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
-             outputSpeech.setText("Thanks for playing,Goodbye");       // TODO Give some nice message to 
+             outputSpeech.setText("Thanks for playing,Goodbye"); 
+             // TODO Give some nice message to 
+             return SpeechletResponse.newTellResponse(outputSpeech);
+
         }else if ("AMAZON.HelpIntent".equals(intentName)) {
             // Create the plain text output.
         	String speechOutput = "I will play a dialog from a Bollywood movie and ask you interesting Question about it." 
@@ -105,8 +109,7 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
             String repromptText = "What country do you want facts for?";
             return movieTriviaManager.newAskResponse(outputSpeech, true, repromptText, true);
         }
-        resetIds(requestEnvelope);
-        return null;
+      
     }
   
  	
@@ -136,9 +139,6 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     	
     }
     
-    /**
-     * Initializes the instance components if needed.
-     */
     private void initializeComponents() {
         if (amazonDynamoDBClient == null) {
             amazonDynamoDBClient = new AmazonDynamoDBClient();
