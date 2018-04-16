@@ -30,13 +30,9 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     private AmazonDynamoDBClient amazonDynamoDBClient;
     private MovieTriviaManager movieTriviaManager;
     public int questionNumber = 1;
-    
     public static int counter = 0;
-    
-
     public MovieTriviaSpeechlet(DirectiveService directiveService) {
     }
-    
     @Override
     public void onSessionStarted(SpeechletRequestEnvelope<SessionStartedRequest> requestEnvelope) {
         SessionStartedRequest request = requestEnvelope.getRequest();
@@ -45,8 +41,7 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
         log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
         initializeComponents();
-        // any initialization logic goes here
-    }
+      }
     @Override
     public SpeechletResponse onLaunch(SpeechletRequestEnvelope<LaunchRequest> requestEnvelope) {
         LaunchRequest request = requestEnvelope.getRequest();
@@ -56,7 +51,7 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
         return movieTriviaManager.getWelcomeResponse();
     }
     @Override
-   public SpeechletResponse onIntent(SpeechletRequestEnvelope<IntentRequest> requestEnvelope) {
+    public SpeechletResponse onIntent(SpeechletRequestEnvelope<IntentRequest> requestEnvelope) {
     	log.info("In onIntent @@@@@@@@@@@@ START. ");
     	log.info("onIntent requestId={}, sessionId={}", requestEnvelope.getRequest().getRequestId(),
                 requestEnvelope.getSession().getSessionId());
@@ -123,8 +118,6 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
 
         // any session cleanup logic would go here
     }
-   
-
   
     private void resetIds(SpeechletRequestEnvelope<IntentRequest> requestEnvelope){
     	sessionIdSessionStart ="";
@@ -132,7 +125,7 @@ public class MovieTriviaSpeechlet implements SpeechletV2 {
     	log.info("Session to be saved ....: "  + requestEnvelope.getSession() );
     	if(requestEnvelope.getSession() != null){
     		log.info("TEST LIST@@@@: "  + requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked") );
-    		List<Integer>  qqObj = (ArrayList<Integer>)requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked");//TODO thid will not work.Need way to comvert Object attribute to 
+    		List<Integer>  qqObj = (ArrayList<Integer>)requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked"); 
     		log.info("qqObjT@@@@: "  + qqObj );	
     	movieTriviaManager.saveToUserData(qqObj, requestEnvelope.getSession());
     	}

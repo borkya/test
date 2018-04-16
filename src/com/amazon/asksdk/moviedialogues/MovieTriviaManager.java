@@ -1,13 +1,10 @@
 package com.amazon.asksdk.moviedialogues;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.amazon.asksdk.moviedialogue.utilities.MovieTriviaUtility;
 import com.amazon.asksdk.moviedialogues.dao.MovieTriviaCRUD;
 import com.amazon.asksdk.moviedialogues.dao.MovieTriviaDao;
@@ -37,8 +34,7 @@ public class MovieTriviaManager {
 	public static String question=" ";
 //	public static String answer =" ";
 	public static String clip =" ";
-	
-    
+	   
     public MovieTriviaManager(final AmazonDynamoDBClient amazonDynamoDbClient) {
     	MovieTriviaDynamoDbClient dynamoDbClient =
                 new MovieTriviaDynamoDbClient(amazonDynamoDbClient);
@@ -49,9 +45,10 @@ public class MovieTriviaManager {
 		 
 		 try {	 
 		 log.info("In handleYesIntent START "  + requestEnvelope.getSession().getAttribute("listOfQuestionAlreadyAsked") );
-		    if (!requestEnvelope.getSession().getAttributes().isEmpty()) {
+		   // This if condition happens when user has already played one round of game.
+		 	if (!requestEnvelope.getSession().getAttributes().isEmpty()) {
 		    	saveToDbAndEmptySession(requestEnvelope);
-       	    }
+       	      }
 			QuestionBean qb = new QuestionBean();
 	    	log.info("Inside handleYesIntent ... START" );
 	        SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
@@ -66,23 +63,21 @@ public class MovieTriviaManager {
 	        log.info("Session Id @@@@@@... :" + session.getSessionId() );
 //	        log.info(" Question Number @@@@@@... :" + questionNumber);
 	        String speechOutput = "";
-	   
-	        List<Integer> ojj = getListOfAlreadyAskedQuestions(requestEnvelope, session);
-	        qb = dynamoDBOperations.getFinalQuestionsForAlexa(ojj,requestEnvelope);
+	        List<Integer> ojj = getListOfAlreadyAskedQuestions(requestEnvelope, session); // db call
+	        qb = dynamoDBOperations.getFinalQuestionsForAlexa(ojj,requestEnvelope);  // db call
 	        if (qb != null) {
 		 	      log.info(" qb is not null");
-	        	if (qb.getQuestionemptyList()) {
-		 	      resetDbAndSessionIdList(requestEnvelope, session);
-
+	        	if (qb.getQuestionemptyList()) {                                    // set in MovieTriviaCRUD
+		 	      resetDbAndSessionIdList(requestEnvelope, session);                // db call
 	        	}
 	        	String answer = qb.getAnswer();
 	        	requestEnvelope.getSession().setAttribute("answer",answer );
 	        	clip 		 = qb.getCliphere();
 	 			clipUsed 	 = MovieTriviaUtility.convertClip(clip);
-	 	        log.info(" 222222222 Clip id from dynamoDB :" 	+ qb.getCliphere());
-	 	        log.info(" 333333333 Clip used ---:  :" 		+ clipUsed);
+	 	        log.info(" 222222222 Clip id from dynamoDB  :" 	+ qb.getCliphere());
+	 	        log.info(" 333333333 Clip used              :  " 		+ clipUsed );
 	 	        log.info(" 444444444 Question from dynamoDB :" 	+ qb.getQuestion());
-	 	        log.info(" 555555555 Answer from dynamoDB :" 	+ qb.getAnswer());
+	 	        log.info(" 555555555 Answer from dynamoDB   :" 	+ qb.getAnswer());
 	 	        List<Integer> ojj1 = new ArrayList<>();
 	 	        if (ojj != null){
 	 	        	 log.info(" ojj is :" 	+ ojj);
@@ -96,28 +91,25 @@ public class MovieTriviaManager {
 	 	        log.info(" added listOfQuestionAlreadyAskedid to list and new list is " + ojj1);
 	 	        requestEnvelope.getSession().setAttribute("listOfQuestionAlreadyAsked", ojj1);
 	 	        log.info("log after setting listOfQuestionAlreadyAsked");
-
 		        speechOutput = clipUsed;
 	 	 		speechOutput = speechOutput + qb.getQuestion() ;
 	 			outputSpeech.setSsml("<speak>" + speechOutput + "</speak>");
 	 	        log.info("erererererreeeeeeeeeeeeeee");
 	 	        log.info("SpeechOutput    : " + speechOutput);
-
 	 			return SpeechletResponse.newAskResponse(outputSpeech,reprompt);   // newTellResponse(outputSpeech);
-	        }else {
-	        	speechOutput = "The QuestionBean is null.Check logs";
-	        	return SpeechletResponse.newAskResponse(outputSpeech,reprompt);
-	        }
+	              }else {
+	        	       speechOutput = "The QuestionBean is null.Check logs";
+	        	       return SpeechletResponse.newAskResponse(outputSpeech,reprompt);
+	                }
 	        
 		 }catch (Exception e) {
 			log.info(" Exception is :" 	+  e.getMessage());
-			 String outputSpeech =  "OOPS, something went wrong with URI connectivity.Do you want to start over?";//  + MovieTriviaUtility.getdynamicContinue();
+			 String outputSpeech =  "OOPS, something went wrong with audio connectivity.Do you want to start over?";//  + MovieTriviaUtility.getdynamicContinue();
 			 SsmlOutputSpeech ssmloutputSpeech = new SsmlOutputSpeech(); 
 			 ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
-		      PlainTextOutputSpeech speech = getPlainTextOutputSpeech("Want to start again?");
-
-		    Reprompt reprompt = getReprompt(speech);
- 			return SpeechletResponse.newAskResponse(ssmloutputSpeech,reprompt);  
+		     PlainTextOutputSpeech speech = getPlainTextOutputSpeech("Want to start again?");
+   		     Reprompt reprompt = getReprompt(speech);
+ 			 return SpeechletResponse.newAskResponse(ssmloutputSpeech,reprompt);  
 		 }
 	      }
 	private void resetDbAndSessionIdList(SpeechletRequestEnvelope<IntentRequest> requestEnvelope, Session session) {
@@ -217,7 +209,7 @@ public class MovieTriviaManager {
 					        QuestionBean qb= new QuestionBean();
 					        Session session = requestEnvelope.getSession();
 					        List<Integer> ojj = getListOfAlreadyAskedQuestions(requestEnvelope, session);
-						    qb = dynamoDBOperations.getFinalQuestionsForAlexa(ojj,requestEnvelope);	 
+						    qb = dynamoDBOperations.getFinalQuestionsForAlexa(ojj,requestEnvelope);	  // db call
 						    if (qb.getQuestionemptyList()) {
 						 	     resetDbAndSessionIdList(requestEnvelope, session);
 					        }
@@ -231,7 +223,8 @@ public class MovieTriviaManager {
 							 	        log.info(" 333333333 Clip used ---:  " 		+ clipUsed);
 							 	        log.info(" 444444444 Question from dynamoDB :" 	+ qb.getQuestion());
 							 	        log.info(" 555555555 Answer from dynamoDB :" 	+ qb.getAnswer());
-						    			outputSpeech =  "Your answer is Right. Here is next clip." + clipUsed  + qb.getQuestion() ;
+						    			outputSpeech =  "Your answer is right, here is next clip" + " <break time=\".1s\"/> " 
+						    								+ clipUsed  +" <break time=\".1s\"/> " + qb.getQuestion() ;
 						    			ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
 						    			counter = counter + 1;
 						    			rightanswercounter = rightanswercounter + 1;
@@ -242,10 +235,9 @@ public class MovieTriviaManager {
 						    			requestEnvelope.getSession().setAttribute("answer",qb.getAnswer());
 						    			requestEnvelope.getSession().setAttribute("rightanswercount",rightanswercounter);
 							 	        log.info("111111erererererreeeeeeeeeeeeeee");
-							 	       log.info("111111erererererreeeeeeeeeeeeeee "+outputSpeech);
-
+							 	        log.info("111111erererererreeeeeeeeeeeeeee "+outputSpeech);
 						    			return SpeechletResponse.newAskResponse(ssmloutputSpeech,reprompt);  
-							 		
+					 		
 						    		}else {
 						    			clip 		 = qb.getCliphere();
 							 			clipUsed 	 = MovieTriviaUtility.convertClip(clip);
@@ -254,7 +246,9 @@ public class MovieTriviaManager {
 							 	        log.info(" 444444444 Question from dynamoDB :" 	+ qb.getQuestion());
 							 	        log.info(" 555555555 Answer from dynamoDB :" 	+ qb.getAnswer());
 							 	        //answer = answer + "." ;
-							 	        outputSpeech =  "Your answer is Wrong.The correct Answer is," +  answer + "Here is next clip." + clipUsed  + qb.getQuestion() ;
+							 	        outputSpeech =  "Your answer is Wrong,The correct Answer is" +" <break time=\".1s\"/> " 
+							 	        				   + answer +" <break time=\".1s\"/> " + "Here is next clip" + " <break time=\".1s\"/> "
+							 	        		           + clipUsed  +" <break time=\".1s\"/> " + qb.getQuestion() ;
 						    			ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
 						    			counter = counter + 1;
 						    			log.info(" 6666666666  Counter value set in session : " + counter);
@@ -264,7 +258,6 @@ public class MovieTriviaManager {
 						    			requestEnvelope.getSession().setAttribute("answer",qb.getAnswer());
 							 	        log.info("222222erererererreeeeeeeeeeeeeee");
 								 	    log.info("222222erererererreeeeeeeeeeeeeee "+outputSpeech);
-
 						    			return SpeechletResponse.newAskResponse(ssmloutputSpeech,reprompt);  
 						    		}
 				           }
@@ -275,7 +268,9 @@ public class MovieTriviaManager {
 								    			rightanswercounter = rightanswercounter + 1;
 								    			requestEnvelope.getSession().setAttribute("rightanswercount",rightanswercounter);
 								    			
-								    			outputSpeech =  "Your Answer is Right. You answered" +rightanswercounter+" out for 5. " + MovieTriviaUtility.getdynamicContinue();
+								    			outputSpeech =  "Your Answer is right,you answered"+" <break time=\".05s\"/> " 
+								    			                 +rightanswercounter +" <break time=\".07s\"/> " +"question correctly out of 5 " 
+								    					         + " <break time=\".1s\"/> " + MovieTriviaUtility.getdynamicContinue();
 								    			ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
 								    			requestEnvelope.getSession().removeAttribute("answer");
 									 	        log.info("333333erererererreeeeeeeeeeeeeee");
@@ -285,7 +280,11 @@ public class MovieTriviaManager {
 									 		
 								    		}else {
 								    			//answer = answer + "." ;
-									 	        outputSpeech =  "Your answer is Wrong. " +" The correct Answer is " +  answer +" You answered " +rightanswercounter+" out for 5.\""+  MovieTriviaUtility.getdynamicContinue();
+									 	        outputSpeech =  "Your answer is wrong, the correct answer is " 
+								    			+" <break time=\".05s\"/> " +  answer +" <break time=\".1s\"/> " 
+									 	        +" You answered " +" <break time=\".1s\"/> " +rightanswercounter
+									 	        +" <break time=\".1s\"/> " + " questions correctly out of 5" 
+									 	        +" <break time=\".1s\"/> " +  MovieTriviaUtility.getdynamicContinue();
 								    			ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
 								    			requestEnvelope.getSession().removeAttribute("answer");
 									 	        log.info("444444erererererreeeeeeeeeeeeeee");
@@ -305,7 +304,9 @@ public class MovieTriviaManager {
 				 		
 			    		}else {
 			    			answer = answer + "." ;
-				 	        outputSpeech =  "Your answer is Wrong."+ "The correct Answer is " +  answer + " Something went wrong with counter.Do you want to start over ? " ; //+ MovieTriviaUtility.getdynamicContinue();
+				 	        outputSpeech =  "Your answer is Wrong,The correct Answer is " +" <break time=\".1s\"/> " 
+			    			                +  answer +" <break time=\".1s\"/> " 
+				 	        		        + " Something went wrong with counter.Do you want to start over ? ";
 			    			ssmloutputSpeech.setSsml("<speak>" + outputSpeech + "</speak>");
 				 	        log.info("666666erererererreeeeeeeeeeeeeee");
 				 	        log.info("666666erererererreeeeeeeeeeeeeee"+outputSpeech);
